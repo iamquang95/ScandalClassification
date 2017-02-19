@@ -72,9 +72,10 @@ if __name__ == "__main__":
 	# 	target_names=['0', '1']))
 
 	# GridSearch to find best parameter
+	gammaRange = [pow(2, x) for x in xrange(-15, 4)]
+	cRange = [pow(2, x) for x in xrange(-5, 16)]
 	tuned_parameters = [
-		{'kernel': ['rbf'], 'gamma': [pow(2, -3), pow(2, -2), pow(2, -1), pow(2, 0), pow(2, 1), pow(2, 2), pow(2, 3)],
-            'C': [pow(10, -1), pow(10, 0), pow(10, 1), pow(10, 2)]}
+		{'kernel': ['rbf'], 'gamma': gammaRange, 'C': cRange}
     ]
 	scores = ['f1', 'precision']
 
@@ -83,8 +84,10 @@ if __name__ == "__main__":
 	    print()
 
 	    clf = GridSearchCV(svm.SVC(C=1), tuned_parameters, cv = 5,
-	                       scoring='%s_macro' % score,
-	                       verbose=10000)
+	    				pre_dispatch='4*n_jobs',
+                    	n_jobs=4,
+	                    scoring='%s_macro' % score,
+	                    verbose=100)
 	    train_counts = count_vectorizer.fit_transform(train_corpus)
 	    clf.fit(train_counts, train_labels)
 

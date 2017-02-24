@@ -87,7 +87,7 @@ if __name__ == "__main__":
 	    				pre_dispatch='4*n_jobs',
                     	n_jobs=4,
 	                    scoring='%s_macro' % score,
-	                    verbose=100)
+	                    verbose=10)
 	    train_counts = count_vectorizer.fit_transform(train_corpus)
 	    clf.fit(train_counts, train_labels)
 

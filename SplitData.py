@@ -2,7 +2,7 @@ import codecs
 import random
 
 if __name__ == "__main__":
-	f = codecs.open("nGram_data.txt", "r", "utf-8")
+	f = codecs.open("data_to_split.txt", "r", "utf-8")
 
 	trainFile = codecs.open("train.tagged", "w+", "utf-8")
 	testFile = codecs.open("test.tagged", "w+", "utf-8")

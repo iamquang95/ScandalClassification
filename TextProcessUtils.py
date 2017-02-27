@@ -12,12 +12,14 @@ def getSummary(content):
         return res.group(1)
 
 def getLabel(content):
+    content = removeEndline(content)
     leng = len(content)
-    return int(content[leng-2:leng-1])
+    return int(content[leng-1])
 
 def getTitle(content):
+    content = removeEndline(content)
     leng = len(content)
-    return content[:leng-3]
+    return content[:leng-2]
 
 def removeEndline(content):
     return content.strip()

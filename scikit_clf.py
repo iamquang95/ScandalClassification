@@ -21,7 +21,7 @@ import TextProcessUtils
 positiveDict = TextProcessUtils.getDictionary("positive.dict")
 negativeDict = TextProcessUtils.getDictionary("negative.dict")
 
-def features(tokenize, document):
+def features(tokenize, document, totalDoc, maxdf):
     terms = tokenize(document)
     d = {
         'positive': TextProcessUtils.countWordInDict(positiveDict, document),
@@ -29,6 +29,9 @@ def features(tokenize, document):
     }
     for t in terms:
         d[t] = d.get(t, 0) + 1
+    for key in d.keys():
+        if (1.0*d[key]/totalDoc > maxdf):
+            d.pop(key)
     return d
 
 if __name__ == "__main__":
@@ -51,7 +54,7 @@ if __name__ == "__main__":
     f.close()
 
     # NORMAL USE
-    count_vectorizer = CountVectorizer(encoding=u'utf-8', ngram_range=(1, 3), max_df = 0.1, lowercase = True)
+    count_vectorizer = CountVectorizer(encoding=u'utf-8', ngram_range=(1, 3), max_df = 0.5, lowercase = True)
     tokenize = count_vectorizer.build_analyzer()
     counts = count_vectorizer.fit_transform(train_corpus)
 
@@ -87,12 +90,19 @@ if __name__ == "__main__":
     #   target_names=['0', '1']))
 
     # GridSearch to find best parameter
-    gammaRange = [pow(2, -9)] # [pow(2, x) for x in xrange(-15, 4)]
-    cRange =  [pow(2, 4)] # [pow(2, x) for x in xrange(-5, 16)]
+    gammaRange = [pow(2, x) for x in xrange(-15, 4)] # [pow(2, -9)] 
+    cRange =  [pow(2, x) for x in xrange(-5, 16)] # [pow(2, 4)]
+    classWeightRange = [{u'1': pow(2, x)} for x in [0, 1, 2, 3, 4, 5]] + ['balanced'] # [{u'1': w} for w in [1, 2, 4, 6, 10]]
     tuned_parameters = [
-        {'kernel': ['rbf'], 'gamma': gammaRange, 'C': cRange}
+        {
+            'kernel': ['rbf'],
+            'gamma': gammaRange,
+            'C': cRange,
+            'class_weight': classWeightRange,
+            'decision_function_shape': ['ovo', 'ovr', None]
+        }
     ]
-    scores = ['f1', 'precision']
+    scores = ['precision_macro', 'precision_micro', 'f1_macro', 'f1_micro']
 
     for score in scores:
         print("# Tuning hyper-parameters for %s" % score)
@@ -101,11 +111,11 @@ if __name__ == "__main__":
         clf = GridSearchCV(svm.SVC(C=1), tuned_parameters, cv = 5,
                         pre_dispatch='4*n_jobs',
                         n_jobs=-1,
-                        scoring='%s_macro' % score,
+                        scoring=score,
                         verbose=10)
         train_counts = count_vectorizer.fit_transform(train_corpus)
         vect = DictVectorizer()
-        train_counts = vect.fit_transform(features(tokenize, d) for d in train_corpus)
+        train_counts = vect.fit_transform(features(tokenize, d, len(train_corpus), 0.3) for d in train_corpus)
         clf.fit(train_counts, train_labels)
 
         print("Best parameters set found on development set:")
@@ -127,7 +137,7 @@ if __name__ == "__main__":
         print("The scores are computed on the full evaluation set.")
         print()
         test_counts = count_vectorizer.transform(test_corpus)
-        test_counts = vect.transform(features(tokenize, d) for d in test_corpus)
+        test_counts = vect.transform(features(tokenize, d, len(train_corpus), 0.3) for d in test_corpus)
         y_true, y_pred = test_labels, clf.predict(test_counts)
         print(metrics.classification_report(y_true, y_pred))
         print()

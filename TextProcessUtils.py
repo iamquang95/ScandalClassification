@@ -13,7 +13,7 @@ def getSummary(content):
 
 def getLabel(content):
     leng = len(content)
-    return content[leng-2:leng-1]
+    return int(content[leng-2:leng-1])
 
 def getTitle(content):
     leng = len(content)

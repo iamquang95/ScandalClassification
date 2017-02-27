@@ -92,7 +92,7 @@ if __name__ == "__main__":
     # GridSearch to find best parameter
     gammaRange = [pow(2, x) for x in xrange(-15, 4)] # [pow(2, -9)] 
     cRange =  [pow(2, x) for x in xrange(-5, 16)] # [pow(2, 4)]
-    classWeightRange = [{u'1': pow(2, x)} for x in [0, 1, 2, 3, 4, 5]] + ['balanced'] # [{u'1': w} for w in [1, 2, 4, 6, 10]]
+    classWeightRange = [{1: pow(2, x)} for x in [0, 1, 2, 3, 4, 5]] + ['balanced'] # [{u'1': w} for w in [1, 2, 4, 6, 10]]
     tuned_parameters = [
         {
             'kernel': ['rbf'],

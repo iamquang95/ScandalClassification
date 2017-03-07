@@ -15,13 +15,24 @@ from sklearn import metrics
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
+
 
 import TextProcessUtils
+import SMOTE
 
 positiveDict = TextProcessUtils.getDictionary("positive.dict")
 negativeDict = TextProcessUtils.getDictionary("negative.dict")
 
-def features(tokenize, document, totalDoc, maxdf):
+def getMinoritySamples(dicts, labels):
+    minoritySamples = []
+    for dict, label in zip(dicts, labels):
+        if (label == 1):
+            minoritySamples.append(dict)
+    return minoritySamples
+
+def features(tokenize, document):
     terms = tokenize(document)
     d = {
         'positive': TextProcessUtils.countWordInDict(positiveDict, document),
@@ -29,10 +40,10 @@ def features(tokenize, document, totalDoc, maxdf):
     }
     for t in terms:
         d[t] = d.get(t, 0) + 1
-    for key in d.keys():
-        if (1.0*d[key]/totalDoc > maxdf):
-            d.pop(key)
     return d
+
+def shuffleSamples(counts, labels):
+    return shuffle(counts, labels)
 
 if __name__ == "__main__":
     f = codecs.open("train.tagged", "r", "utf-8")
@@ -53,8 +64,16 @@ if __name__ == "__main__":
 
     f.close()
 
+    corpus = train_corpus + test_corpus
+    labels = train_labels + test_labels
+
+    (corpus, labels) = shuffle(corpus, labels, random_state=158)
+
+    train_corpus, test_corpus, train_labels, test_labels = train_test_split(
+        corpus, labels, test_size=0.1, random_state=158)
+
     # NORMAL USE
-    count_vectorizer = CountVectorizer(encoding=u'utf-8', ngram_range=(1, 3), max_df = 0.5, lowercase = True)
+    count_vectorizer = CountVectorizer(encoding=u'utf-8', ngram_range=(1, 3), max_df = 0.1, lowercase = True)
     tokenize = count_vectorizer.build_analyzer()
     counts = count_vectorizer.fit_transform(train_corpus)
 
@@ -71,6 +90,7 @@ if __name__ == "__main__":
     example_counts = count_vectorizer.transform(examples)
 
     print("[INFO] Finished read data")
+
     # predictions = classifier.predict(example_counts)
     # print(predictions) # should be [1, 0, 1, 1, 0, 1, 0]
 
@@ -90,19 +110,39 @@ if __name__ == "__main__":
     #   target_names=['0', '1']))
 
     # GridSearch to find best parameter
-    gammaRange = [pow(2, x) for x in xrange(-15, 4)] # [pow(2, -9)] 
-    cRange =  [pow(2, x) for x in xrange(-5, 16)] # [pow(2, 4)]
-    classWeightRange = [{1: pow(2, x)} for x in [0, 1, 2, 3, 4, 5]] + ['balanced'] # [{u'1': w} for w in [1, 2, 4, 6, 10]]
+    gammaRange = [pow(2, -9)] # [pow(2, x) for x in xrange(-10, -6)] # [pow(2, -9)] # 
+    cRange =  [pow(2, 4)] # [pow(2, x) for x in xrange(0, 7)] # 
+    classWeightRange = [{1: 8}] #[{1: pow(2, x)} for x in [0, 1, 2, 3]] + ['balanced'] # [{u'1': w} for w in [1, 2, 4, 6, 10]]
     tuned_parameters = [
         {
             'kernel': ['rbf'],
             'gamma': gammaRange,
             'C': cRange,
             'class_weight': classWeightRange,
-            'decision_function_shape': ['ovo', 'ovr', None]
+            'decision_function_shape': ['ovr'] # ['ovo', 'ovr', None]
         }
     ]
-    scores = ['precision_macro', 'precision_micro', 'f1_macro', 'f1_micro']
+    scores = ['f1_macro'] #, 'precision_macro', 'f1_micro']
+
+    # train_counts = count_vectorizer.fit_transform(train_corpus)
+    # vect = DictVectorizer()
+    # train_counts = vect.fit_transform(features(tokenize, d) for d in train_corpus)
+
+    train_dict = [features(tokenize, d) for d in train_corpus]
+
+    newMinoritySamples = SMOTE.smoteAlgo(
+        getMinoritySamples(train_dict, train_labels),
+        rate = 5,
+        k = 20
+    )
+
+    train_dict = train_dict + newMinoritySamples
+    train_labels = train_labels + [1]*len(newMinoritySamples)
+
+    vect = DictVectorizer()
+    train_counts = vect.fit_transform(train_dict)
+
+    (train_counts, train_labels) = shuffle(train_counts, train_labels)
 
     for score in scores:
         print("# Tuning hyper-parameters for %s" % score)
@@ -113,9 +153,6 @@ if __name__ == "__main__":
                         n_jobs=-1,
                         scoring=score,
                         verbose=10)
-        train_counts = count_vectorizer.fit_transform(train_corpus)
-        vect = DictVectorizer()
-        train_counts = vect.fit_transform(features(tokenize, d, len(train_corpus), 0.3) for d in train_corpus)
         clf.fit(train_counts, train_labels)
 
         print("Best parameters set found on development set:")
@@ -136,11 +173,12 @@ if __name__ == "__main__":
         print("The model is trained on the full development set.")
         print("The scores are computed on the full evaluation set.")
         print()
-        test_counts = count_vectorizer.transform(test_corpus)
-        test_counts = vect.transform(features(tokenize, d, len(train_corpus), 0.3) for d in test_corpus)
+        # test_counts = count_vectorizer.transform(test_corpus)
+        test_counts = vect.transform(features(tokenize, d) for d in test_corpus)
         y_true, y_pred = test_labels, clf.predict(test_counts)
         print(metrics.classification_report(y_true, y_pred))
         print()
+        print(metrics.confusion_matrix(y_true, y_pred))
 
     # # K_FOLD
     # k_fold = KFold(n=len(train_corpus), n_folds=5)

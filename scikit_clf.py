@@ -156,11 +156,11 @@ if __name__ == "__main__":
                         verbose=10)
         clf.fit(train_counts, train_labels)
 
-        print("Best parameters set found on development set:")
+        print("Best parameters set found on development set of optimizing %s:" % (score))
         print()
         print(clf.best_params_)
         print()
-        print("Grid scores on development set:")
+        print("Grid scores on development set of optimizing %s:" % (score))
         print()
         means = clf.cv_results_['mean_test_score']
         stds = clf.cv_results_['std_test_score']
@@ -169,7 +169,7 @@ if __name__ == "__main__":
                   % (mean, std * 2, params))
         print()
 
-        print("Detailed classification report:")
+        print("Detailed classification report of optimizing %s:" % (score))
         print()
         print("The model is trained on the full development set.")
         print("The scores are computed on the full evaluation set.")

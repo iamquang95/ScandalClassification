@@ -53,7 +53,9 @@ def populateData(dicts, rate, d1, neighborsPQ):
         newSamples.append(newSample)
     return newSamples
 
-def smoteAlgo(dicts, rate, k):
+def smoteAlgo(dicts, rate, k, random_seed):
+    # static seed for SMOTE algorithm
+    random.seed(random_seed)
     n = len(dicts)
     print("[INFO] START SMOTE algo with rate = %s for %s samples" % (rate, n))
     

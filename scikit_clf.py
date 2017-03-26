@@ -17,6 +17,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
+from sklearn import preprocessing
 
 
 import TextProcessUtils
@@ -25,7 +26,7 @@ import SMOTE
 positiveDict = TextProcessUtils.getDictionary("positive.dict")
 negativeDict = TextProcessUtils.getDictionary("negative.dict")
 
-RANDOMSEED = 15895
+RANDOMSEED = 1581995
 
 def getMinoritySamples(dicts, labels):
     minoritySamples = []
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     (corpus, labels) = shuffle(corpus, labels, random_state=RANDOMSEED)
 
     train_corpus, test_corpus, train_labels, test_labels = train_test_split(
-        corpus, labels, test_size=0.1, random_state=RANDOMSEED)
+        corpus, labels, test_size=0.08, random_state=RANDOMSEED)
 
     # NORMAL USE
     count_vectorizer = CountVectorizer(encoding=u'utf-8', ngram_range=(1, 3), max_df = 0.1, lowercase = True)
@@ -110,9 +111,9 @@ if __name__ == "__main__":
     #   target_names=['0', '1']))
 
     # GridSearch to find best parameter
-    gammaRange = [pow(2, x) for x in xrange(-10, -4)] # [0.00390625] # [pow(2, x) for x in xrange(-10, -0)]
-    cRange = [pow(2, x) for x in xrange(0, 3)] # [1] # [pow(2, x) for x in xrange(-3, 7)]
-    classWeightRange = [{1: pow(2, x)} for x in [0, 1, 2, 3]] + ['balanced'] # [{1: 8}] # [{1: pow(2, x)} for x in [0, 1, 2, 3]] + ['balanced']
+    gammaRange = [0.00390625] #[pow(2, x) for x in xrange(-10, -4)] #  [pow(2, x) for x in xrange(-10, -0)]
+    cRange = [1] #[pow(2, x) for x in xrange(0, 3)] #  [pow(2, x) for x in xrange(-3, 7)]
+    classWeightRange = [{1: 8}] #[{1: pow(2, x)} for x in [0, 1, 2, 3]] + ['balanced'] #  [{1: pow(2, x)} for x in [0, 1, 2, 3]] + ['balanced']
     tuned_parameters = [
         {
             'kernel': ['rbf'],
@@ -122,7 +123,7 @@ if __name__ == "__main__":
             'decision_function_shape': ['ovr'] # ['ovo', 'ovr', None]
         }
     ]
-    scores = ['roc_auc', 'f1_micro'] # ['f1_macro', 'precision_macro', 'f1_micro']
+    scores = ['f1_micro'] # ['f1_macro', 'precision_macro', 'f1_micro']
 
     # train_counts = count_vectorizer.fit_transform(train_corpus)
     # vect = DictVectorizer()
@@ -136,7 +137,6 @@ if __name__ == "__main__":
         k = 100,
         random_seed = RANDOMSEED
     )
-
     train_dict = train_dict + newMinoritySamples
     train_labels = train_labels + [1]*len(newMinoritySamples)
 

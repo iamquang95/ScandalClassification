@@ -111,9 +111,9 @@ if __name__ == "__main__":
     #   target_names=['0', '1']))
 
     # GridSearch to find best parameter
-    gammaRange = [0.00390625] #[pow(2, x) for x in xrange(-10, -4)] #  [pow(2, x) for x in xrange(-10, -0)]
-    cRange = [1] #[pow(2, x) for x in xrange(0, 3)] #  [pow(2, x) for x in xrange(-3, 7)]
-    classWeightRange = [{1: 8}] #[{1: pow(2, x)} for x in [0, 1, 2, 3]] + ['balanced'] #  [{1: pow(2, x)} for x in [0, 1, 2, 3]] + ['balanced']
+    gammaRange = [pow(2, x) for x in xrange(-10, 0)] #  [pow(2, x) for x in xrange(-10, -0)]
+    cRange = [pow(2, x) for x in xrange(0, 3)] #  [pow(2, x) for x in xrange(-3, 7)]
+    classWeightRange = [{1: pow(2, x)} for x in [0, 1, 2, 3]] + ['balanced'] #  [{1: pow(2, x)} for x in [0, 1, 2, 3]] + ['balanced']
     tuned_parameters = [
         {
             'kernel': ['rbf'],
@@ -123,7 +123,7 @@ if __name__ == "__main__":
             'decision_function_shape': ['ovr'] # ['ovo', 'ovr', None]
         }
     ]
-    scores = ['f1_micro'] # ['f1_macro', 'precision_macro', 'f1_micro']
+    scores = ['f1', 'f1_macro']# ['f1_macro', 'precision_macro', 'f1_micro']
 
     # train_counts = count_vectorizer.fit_transform(train_corpus)
     # vect = DictVectorizer()

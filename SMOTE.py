@@ -65,8 +65,8 @@ def smoteAlgo(dicts, rate, k, random_seed):
         nearestNeighbors.append(PriorityQueue())
 
     for i, dict in enumerate(dicts):
-        if (i % 100 == 0):
-            print("%s/%s" % (i, n))
+        # if (i % 100 == 0):
+        #     print("%s/%s" % (i, n))
         for j, dict2 in enumerate(dicts):
             if (i != j):
                 nearestNeighbors[i].put((distance(dict, dict2), j))

@@ -1,22 +1,33 @@
+#!/usr/bin/python
+
+import sys
+
 import codecs
 
 import TextProcessUtils
 
-startDataLine = 5000
-endDataLine = 20000
-foUnTokData = "UnTokData.txt"
+startDataLine = int(sys.argv[1])
+endDataLine = int(sys.argv[2])
+foUnTokData = sys.argv[3] # "UnTokData.txt"
 fiFullTextFilename = "FullData.txt"
 
 def genUnTokData():
-    fiFullText = codecs.open(fiFullTextFilename, "r", "UTF-8")
-    fo = codecs.open(foUnTokData, "w", "UTF-8")
+    print startDataLine
+    print endDataLine
+    print(foUnTokData)
+    fiFullText = codecs.open(fiFullTextFilename, "r", 'UTF-8')
+    data = fiFullText.read().replace(u'\u2028','').replace(u'\u2029','').splitlines()
+    print(len(data))
+    fiFullText.close()
+    fo = codecs.open(foUnTokData, "w+", "UTF-8")
 
     index = 1
     lineType = 0
     title = ""
     summary = ""
 
-    for line in fiFullText:
+    for (i, line) in enumerate(data):
+        lineType = i%3
         if (lineType == 0):
             if (index >= endDataLine):
                 break
@@ -26,7 +37,10 @@ def genUnTokData():
             summary = TextProcessUtils.getSummary(line)
             if (index > startDataLine):
                 fo.write("%s. %s\n" % (title, summary))
-        lineType = (lineType + 1) % 3
+        elif (lineType == 2):
+            if (line[0] != '-'):
+                print("vkl %s %s" % (i, line))
+                break
 
     fo.close()
 

@@ -2,7 +2,7 @@ import codecs
 
 if __name__ == "__main__":
 
-    inputFilename = "data2.txt"
+    inputFilename = "test.tagged"
 
     f = codecs.open(inputFilename, "r", "UTF-8")
 

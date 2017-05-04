@@ -90,6 +90,15 @@ if __name__ == "__main__":
                 u'Thu về hơn 2.900 đơn_vị máu tình_nguyện vì đồng_đội thân_yêu . Chiều 8-1 , Ngày hội hiến máu tình_nguyện “ Giọt máu nghĩa_tình vì đồng_đội thân_yêu ” - Lần thứ II và Liên_hoan dân vũ sinh_viên các Học_viện , trường CAND mở_rộng năm 2016 đã bế_mạc tại Trung_tâm Thể_thao CAND ( Nguyễn_Xiển , Thanh_Trì , Hà_Nội )']
     example_counts = count_vectorizer.transform(examples)
 
+    # model = svm.SVC(C = 1, probability=True)
+    # vect = DictVectorizer()
+    # train_dict = [features(tokenize, d) for d in train_corpus]
+    # train_counts = vect.fit_transform(train_dict)
+    # model.fit(train_counts, train_labels)
+    # test_counts = vect.transform(features(tokenize, d) for d in examples)
+    # class_probabilities = model.predict_proba(test_counts)
+    # print(class_probabilities)
+
     print("[INFO] Finished read data")
 
     # predictions = classifier.predict(example_counts)
@@ -180,28 +189,3 @@ if __name__ == "__main__":
         print(metrics.classification_report(y_true, y_pred))
         print()
         print(metrics.confusion_matrix(y_true, y_pred))
-
-    # # K_FOLD
-    # k_fold = KFold(n=len(train_corpus), n_folds=5)
-    # scores = []
-    # confusion = numpy.array([[0, 0], [0, 0]])
-    # for train_indices, test_indices in k_fold:
-    #     train_text = [train_corpus[index] for index in train_indices]
-    #     train_y = [train_labels[index] for index in train_indices]
-
-    #     test_text = [train_corpus[index] for index in test_indices]
-    #     test_y = [train_labels[index] for index in test_indices]
-
-    #     pipeline.fit(train_text, train_y)
-    #     predictions = pipeline.predict(test_text)
-
-    #     confusion += confusion_matrix(test_y, predictions)
-    #     score = f1_score(test_y, predictions, pos_label=u'1')
-    #     scores.append(score)
-
-    # print('Total articles classified:', len(data))
-    # print('Score:', sum(scores)/len(scores))
-    # print('Confusion matrix:')
-    # print(confusion)
-
-

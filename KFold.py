@@ -1,6 +1,9 @@
 #!/usr/bin/python -tt
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+import sys
+
 import numpy
 import codecs
 
@@ -30,6 +33,12 @@ positiveDict = TextProcessUtils.getDictionary("positive.dict")
 negativeDict = TextProcessUtils.getDictionary("negative.dict")
 
 RANDOMSEED = 1581995
+
+
+
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 def getMinoritySamples(dicts, labels):
     minoritySamples = []
@@ -103,6 +112,7 @@ if __name__ == "__main__":
     for train_index, test_index in kf.split(corpus):
         kthRun += 1
         print(">>>>>>> Round = %s" % kthRun)
+        eprint(">>>>>>> Round = %s" % kthRun)
         # init train data set
         train_corpus = []
         train_labels = []
@@ -145,7 +155,7 @@ if __name__ == "__main__":
 
             clf = GridSearchCV(svm.SVC(C=1), tuned_parameters,
                             pre_dispatch='4*n_jobs',
-                            n_jobs=6,
+                            n_jobs=4,
                             scoring=score,
                             verbose=1)
             clf.fit(train_counts, train_labels)
@@ -178,6 +188,11 @@ if __name__ == "__main__":
             print(metrics.classification_report(y_true, y_pred))
             print()
             print(metrics.confusion_matrix(y_true, y_pred))
+
+
+            eprint(metrics.classification_report(y_true, y_pred))
+            eprint()
+            eprint(metrics.confusion_matrix(y_true, y_pred))
 
     # print(saved_best_score)
     # print(saved_best_param)

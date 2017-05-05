@@ -4,7 +4,7 @@
 import numpy
 import codecs
 import random
-from math import sqrt 
+from math import sqrt
 
 
 from Queue import PriorityQueue
@@ -25,7 +25,7 @@ def oversampling(train_dict, train_label, random_seed):
         if (label == 1):
             pos_index.append(i)
         else:
-            neg_index.append(i) 
+            neg_index.append(i)
     nNeg = len(neg_index)
     nPos = len(pos_index)
 

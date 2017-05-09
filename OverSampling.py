@@ -17,6 +17,10 @@ import TextProcessUtils
 
 def oversampling(train_dict, train_label, random_seed):
     # static seed
+
+    print("%s %s" % (len(train_label), len(train_dict)))
+
+
     print("[INFO] START oversamping")
     random.seed(random_seed)
     pos_index = []
@@ -38,6 +42,8 @@ def oversampling(train_dict, train_label, random_seed):
     for index in duplicate_pos:
         train_dict.append(train_dict[pos_index[index]])
         train_label.append(train_label[pos_index[index]])
+
+    print("%s %s" % (len(train_label), len(train_dict)))
 
     print("[INFO] FINISH oversamping, add %s more positive samples" % (more_pos_samples))
 
